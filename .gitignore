@@ -1,0 +1,18 @@
+.gradle/
+.kotlin/
+.idea/
+local.properties
+**/build/
+*.jks
+*.keystore
+captures/
+artifacts/
+keystore.properties
+
+# Internal working notes (kept locally, not published)
+CLAUDE_HANDOFF.md
+VERIFICATION.md
+design-qa.md
+docs/review/
+docs/design/
+scripts/package.ps1

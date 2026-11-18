@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Сейчас играет: обложка, перемотка, лайк и управление</string>
+    <string name="widget_app">Mauri</string>
+    <string name="widget_hint">Нажмите, чтобы открыть</string>
+    <string name="widget_zero">0:00</string>
+    <string name="widget_like">В избранное</string>
+    <string name="widget_back10">Назад на 10 секунд</string>
+    <string name="widget_fwd10">Вперёд на 10 секунд</string>
+    <string name="widget_prev">Предыдущий трек</string>
+    <string name="widget_next">Следующий трек</string>
+    <string name="widget_play">Воспроизвести</string>
+</resources>
