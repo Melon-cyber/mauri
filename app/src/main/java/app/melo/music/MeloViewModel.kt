@@ -171,13 +171,16 @@ class MeloViewModel(application: Application) : AndroidViewModel(application) {
         val p = controller ?: return
         val extras = p.sessionExtras
         val mode = runCatching { QueueMode.valueOf(extras.getString("mode") ?: if (p.shuffleModeEnabled) "SHUFFLE" else "ORDERED") }.getOrDefault(QueueMode.ORDERED)
+        val uids = (0 until p.mediaItemCount).map { i -> p.getMediaItemAt(i).mediaMetadata.extras?.getString("queueUid") ?: "i$i" }
+        val published = extras.getStringArrayList("order")?.let { list -> val at = uids.withIndex().associate { it.value to it.index }; list.mapNotNull { at[it] } }
+        val order = published?.takeIf { QueuePolicy.isPermutation(it, p.mediaItemCount) } ?: p.playbackOrder()
         mutablePlayback.update { old -> old.copy(
             ready = true, track = p.currentMediaItem?.toTrack(), queue = (0 until p.mediaItemCount).map { p.getMediaItemAt(it).toTrack() },
             index = p.currentMediaItemIndex.coerceAtLeast(0), playing = p.isPlaying,
             buffering = p.playbackState == Player.STATE_BUFFERING,
             position = p.currentPosition.coerceAtLeast(0), duration = p.duration.takeIf { it != C.TIME_UNSET && it > 0 } ?: p.currentMediaItem?.mediaMetadata?.extras?.getLong("duration") ?: 0,
             shuffle = p.shuffleModeEnabled, repeat = p.repeatMode,
-            mode = mode, order = p.playbackOrder(),
+            mode = mode, order = order,
             entries = (0 until p.mediaItemCount).map { i -> QueueEntry(i, p.getMediaItemAt(i).mediaMetadata.extras?.getString("queueUid") ?: "$i", p.getMediaItemAt(i).toTrack()) },
             context = extras.getString("context") ?: "Твоя музыка", sleepUntil = extras.getLong("sleepUntil"),
             sleepAfterTrack = !extras.getString("sleepTrack").isNullOrEmpty(), radioLoading = extras.getBoolean("radioLoading"), radioFailed = extras.getBoolean("radioFailed"),

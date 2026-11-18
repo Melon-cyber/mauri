@@ -82,6 +82,7 @@ class MusicService : MediaLibraryService() {
                 sampleListening()
                 if (events.containsAny(Player.EVENT_TIMELINE_CHANGED, Player.EVENT_MEDIA_ITEM_TRANSITION, Player.EVENT_REPEAT_MODE_CHANGED,
                         Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED, Player.EVENT_PLAY_WHEN_READY_CHANGED, Player.EVENT_POSITION_DISCONTINUITY)) save()
+                if (events.containsAny(Player.EVENT_TIMELINE_CHANGED, Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) publish()
                 maybeAutoplay()
             }
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -470,13 +471,16 @@ class MusicService : MediaLibraryService() {
         persistence.save(PlaybackSnapshot(tracks(), player.currentMediaItemIndex.coerceAtLeast(0), player.currentPosition.coerceAtLeast(0), player.playbackOrder(), mode, player.repeatMode, contextLabel))
     }
     private fun publish() {
-        val fingerprint = "$mode|$contextLabel|${sleep.untilMs}|${sleep.afterTrackId}|$radioLoading|$radioFailed"
+        // The exact play order travels by song ids: the controller's own copy of a custom shuffle order can lag behind.
+        val order = ArrayList(player.playbackOrder().map { player.getMediaItemAt(it).mediaMetadata.extras?.getString("queueUid") ?: "i$it" })
+        val fingerprint = "$mode|$contextLabel|${sleep.untilMs}|${sleep.afterTrackId}|$radioLoading|$radioFailed|${order.joinToString(",")}"
         if (lastExtras == fingerprint) return
         lastExtras = fingerprint
         session?.setSessionExtras(Bundle().apply {
             putString("mode", mode.name); putString("context", contextLabel)
             putLong("sleepUntil", sleep.untilMs); putString("sleepTrack", sleep.afterTrackId)
             putBoolean("radioLoading", radioLoading); putBoolean("radioFailed", radioFailed)
+            putStringArrayList("order", order)
         })
     }
 
