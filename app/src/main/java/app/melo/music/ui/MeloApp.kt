@@ -400,6 +400,8 @@ import kotlinx.coroutines.withContext
         Spacer(Modifier.height(24.dp))
     }
 }
+/** Public source repository (GPL: the app links to its own source). */
+const val SOURCE_URL = "https://github.com/Melon-cyber/mauri"
 @Composable private fun SettingsSheet(model: MeloViewModel, dismiss: () -> Unit, export: () -> Unit, restore: () -> Unit, local: () -> Unit, exportStats: () -> Unit, restoreStats: () -> Unit, exportAll: () -> Unit = {}, restoreAll: () -> Unit = {}) {
     val settings by model.settings.collectAsStateWithLifecycle()
     var lyricSettings by remember { mutableStateOf(false) }
@@ -445,7 +447,11 @@ import kotlinx.coroutines.withContext
             HorizontalDivider(Modifier.padding(vertical = 20.dp))
             Text("Твоя приватность", style = MaterialTheme.typography.titleLarge)
             Text("Библиотека, история, загрузки и статистика хранятся на телефоне. Регистрации, рекламных SDK и отправки статистики разработчику нет.\n\nПоиск, аудио и радио обращаются к YouTube/Google; импорт — к Spotify; тексты — к LRCLIB и YouTube Music. Эти сервисы получают IP и соответствующие запросы. Обложки загружаются с серверов источников.\n\nПоиск и новые загрузки зависят от источника и сети. Готовые скачанные записи открываются без сети. Текст найден не для каждой песни.", color = Muted, fontSize = 12.sp, lineHeight = 19.sp, modifier = Modifier.padding(vertical = 14.dp))
-            Text("Самостоятельный проект · GPL-3.0-or-later\nNewPipe Extractor · Media3 · LRCLIB · Manrope\nНе связан с Liner, Spotify или YouTube.", color = Muted, fontSize = 11.sp)
+            val context = LocalContext.current
+            ActionRow(Icons.Rounded.Code, "Исходный код", "Открытый проект на GitHub: ошибки, идеи, новые версии") {
+                runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(SOURCE_URL))) }
+            }
+            Text("Открытый проект · GPL-3.0-or-later\nNewPipe Extractor · Media3 · LRCLIB · Manrope\nНе связан с YouTube, Spotify или LRCLIB.", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp))
         }
     }
 }
